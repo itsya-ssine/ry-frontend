@@ -37,7 +37,7 @@ const ClubDashboard = () => {
   const [isSendingNotif, setIsSendingNotif] = useState(false);
 
   const fileInputRef = useRef(null);
-  const ASSETS_URL = "http://localhost:8000/";
+  const ASSETS_URL = "https://ry-backend.vercel.app/api/";
 
   const fetchData = async () => {
     if (user) {
