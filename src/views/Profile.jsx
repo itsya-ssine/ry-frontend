@@ -16,7 +16,7 @@ const Profile = ({ onBack }) => {
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef(null);
 
-  const ASSETS_URL = "http://localhost:8000/";
+  const ASSETS_URL = "https://ry-backend.vercel.app/api/";
 
   useEffect(() => {
     const loadProfileData = async () => {
