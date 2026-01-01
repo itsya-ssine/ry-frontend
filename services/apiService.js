@@ -1,4 +1,4 @@
-const BASE_URL = "http://localhost:8000/api";
+const BASE_URL = "https://ry-backend.vercel.app/api/";
 
 export const api = {
   async login(email, password) {
