@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 
 export const campusChat = async (message, history, clubs = [], activities = []) => {
-  const apiKey = CHATBOT_API;
+  const apiKey = import.meta.env.CHATBOT_API;
 
   if (!apiKey) {
     return "Bn8";
