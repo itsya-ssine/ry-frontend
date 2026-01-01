@@ -10,7 +10,7 @@ const StudentDashboard = ({ onGuestJoin }) => {
   const [myRegistrations, setMyRegistrations] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
 
-  const ASSETS_URL = "http://localhost:8000/";
+  const ASSETS_URL = "https://ry-backend.vercel.app/api/";
 
   useEffect(() => {
     const load = async () => {
