@@ -36,7 +36,6 @@ const AdminDashboard = () => {
 
   const [rawFile, setRawFile] = useState(null);
   const fileInputRef = useRef(null);
-  const ASSETS_URL = "https://ry-backend.vercel.app/";
 
   const loadData = async () => {
     try {
@@ -125,11 +124,23 @@ const AdminDashboard = () => {
     e.preventDefault();
 
     const formData = new FormData();
-    formData.append('description', newItemDesc);
 
     if (rawFile) {
-      formData.append('image', rawFile);
+      const imageData = new FormData();
+      imageData.append('file', rawFile);
+      imageData.append('upload_preset', "club_management");
+      imageData.append('cloud_name', "dfnaghttm");
+
+      const res = await fetch(import.meta.env.VITE_ASSETS_URL, {
+        method: "POST",
+        body: imageData
+      });
+
+      const uploadedImageData = await res.json();
+      formData.append('image', uploadedImageData.secure_url);
     }
+
+    formData.append('description', newItemDesc);
 
     try {
       if (activeTab === 'clubs') {
@@ -371,7 +382,7 @@ const AdminDashboard = () => {
                     }`}>
                     {index + 1}
                   </div>
-                  <img src={`${ASSETS_URL}${club.image}`} className="w-12 h-12 rounded-xl object-cover shadow-sm" alt="" />
+                  <img src={club.image} className="w-12 h-12 rounded-xl object-cover shadow-sm" alt="" />
                   <div className="flex-grow">
                     <h4 className="font-black text-slate-900 tracking-tight">{club.name}</h4>
                     <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">{club.category}</p>
@@ -581,7 +592,7 @@ const AdminDashboard = () => {
                   <div key={club.id} className="group bg-white border border-gray-200 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                     <div className="aspect-square bg-gray-100 relative overflow-hidden">
                       <img
-                        src={`${ASSETS_URL}${club.image}`}
+                        src={club.image}
                         alt={club.name}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
                       />
@@ -628,7 +639,7 @@ const AdminDashboard = () => {
               activities.map(activity => (
                 <div key={activity.id} className="group bg-white border border-gray-200 rounded-3xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:-translate-y-1">
                   <div className="h-44 bg-gray-100 relative">
-                    <img src={`${ASSETS_URL}${activity.image}`} alt={activity.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
+                    <img src={activity.image} alt={activity.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     <div className="absolute top-4 right-4 flex gap-2">
                       <button
@@ -676,7 +687,7 @@ const AdminDashboard = () => {
                         <tr key={activity.id} className="group hover:bg-slate-50/30 transition-colors">
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
-                              <img src={`${ASSETS_URL}${activity.image}`} className="w-12 h-12 rounded-xl object-cover shadow-sm transition-all" alt="" />
+                              <img src={activity.image} className="w-12 h-12 rounded-xl object-cover shadow-sm transition-all" alt="" />
                               <div className="flex-1">
                                 <p className="text-sm font-black text-slate-900">{activity.title}</p>
                                 <p className="text-xs text-slate-400 font-medium line-clamp-1 max-w-full">
