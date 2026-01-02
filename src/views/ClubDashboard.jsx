@@ -1,9 +1,9 @@
 import { useEffect, useState, useRef } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import { api } from '../../services/apiService.js';
-import { 
-  Check, X, User as UserIcon, Clock, Camera, Settings, 
-  RefreshCw, Pencil, Send, SendHorizontal, Award, Trophy 
+import {
+  Check, X, User as UserIcon, Clock, Camera, Settings,
+  RefreshCw, Pencil, Send, SendHorizontal, Award, Trophy
 } from 'lucide-react';
 
 const BADGES = [
@@ -37,7 +37,6 @@ const ClubDashboard = () => {
   const [isSendingNotif, setIsSendingNotif] = useState(false);
 
   const fileInputRef = useRef(null);
-  const ASSETS_URL = "https://ry-backend.vercel.app/";
 
   const fetchData = async () => {
     if (user) {
@@ -128,7 +127,7 @@ const ClubDashboard = () => {
 
   const handleAwardBadge = async () => {
     if (!selectedStudentId || !club || !user) return;
-    
+
     await api.awardBadge(selectedStudentId, {
       name: selectedBadge.name,
       icon: selectedBadge.icon,
@@ -138,8 +137,8 @@ const ClubDashboard = () => {
 
     await api.addNotifications(
       'success',
-      user.id, 
-      selectedStudentId, 
+      user.id,
+      selectedStudentId,
       `Congratulations! You've been awarded the "${selectedBadge.name}" badge by ${club.name}.`
     );
 
@@ -150,14 +149,30 @@ const ClubDashboard = () => {
 
   const handleImageChange = async (e) => {
     const file = e.target.files?.[0];
-    if (file && club) {
-      const formData = new FormData();
 
+    if (file && club) {
       try {
+        const imageData = new FormData();
+        imageData.append('file', file);
+        imageData.append('upload_preset', "club_management");
+        imageData.append('cloud_name', "dfnaghttm");
+
+        const cloudRes = await fetch(import.meta.env.VITE_ASSETS_URL, {
+          method: "POST",
+          body: imageData
+        });
+
+        const cloudData = await cloudRes.json();
+
+        if (!cloudRes.ok) throw new Error("Cloudinary upload failed");
+
+        const imageUrl = cloudData.secure_url;
+
+        const formData = new FormData();
         formData.append('description', club.description);
         formData.append('name', club.name);
         formData.append('category', club.category || 'General');
-        formData.append('image', file);
+        formData.append('image', imageUrl);
 
         await api.updateClub(club.id, formData);
 
@@ -236,7 +251,7 @@ const ClubDashboard = () => {
     <div className="max-w-7xl mx-auto px-4 py-8">
       <div className="bg-white rounded-3xl p-8 shadow-sm border border-gray-100 mb-8 flex flex-col md:flex-row items-center gap-8">
         <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
-          <img src={`${ASSETS_URL}${club.image}`} alt={club.name} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg group-hover:brightness-75 transition-all" />
+          <img src={club.image} alt={club.name} className="w-24 h-24 rounded-full object-cover border-4 border-white shadow-lg group-hover:brightness-75 transition-all" />
           <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
             <Camera className="text-white w-6 h-6" />
           </div>
@@ -277,37 +292,36 @@ const ClubDashboard = () => {
       {isAwardingBadge && (
         <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4 z-[110]">
           <div className="bg-white rounded-[2.5rem] max-w-lg w-full p-10 shadow-2xl relative">
-             <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Badges</h2>
-                <button onClick={() => setIsAwardingBadge(false)} className="p-2 bg-slate-50 rounded-2xl"><X className="w-8 h-8" /></button>
-             </div>
-             
-             <div className="space-y-6">
-                <div>
-                   <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Select Award Template</label>
-                   <div className="grid grid-cols-2 gap-3">
-                      {BADGES.map(template => (
-                        <button 
-                          key={template.name}
-                          onClick={() => setSelectedBadge(template)}
-                          className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${
-                            selectedBadge.name === template.name ? 'border-indigo-600 bg-indigo-50' : 'border-slate-50 bg-slate-50 hover:border-slate-200'
-                          }`}
-                        >
-                          <span className="text-2xl">{template.icon}</span>
-                          <span className="text-[10px] font-black text-slate-700 uppercase">{template.name}</span>
-                        </button>
-                      ))}
-                   </div>
+            <div className="flex justify-between items-center mb-8">
+              <h2 className="text-2xl font-black text-slate-900 tracking-tight">Badges</h2>
+              <button onClick={() => setIsAwardingBadge(false)} className="p-2 bg-slate-50 rounded-2xl"><X className="w-8 h-8" /></button>
+            </div>
+
+            <div className="space-y-6">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Select Award Template</label>
+                <div className="grid grid-cols-2 gap-3">
+                  {BADGES.map(template => (
+                    <button
+                      key={template.name}
+                      onClick={() => setSelectedBadge(template)}
+                      className={`p-4 rounded-2xl border-2 transition-all flex flex-col items-center gap-2 ${selectedBadge.name === template.name ? 'border-indigo-600 bg-indigo-50' : 'border-slate-50 bg-slate-50 hover:border-slate-200'
+                        }`}
+                    >
+                      <span className="text-2xl">{template.icon}</span>
+                      <span className="text-[10px] font-black text-slate-700 uppercase">{template.name}</span>
+                    </button>
+                  ))}
                 </div>
-                
-                <button 
-                  onClick={handleAwardBadge}
-                  className="w-full py-4 bg-indigo-600 text-white font-black uppercase text-xs rounded-2xl shadow-xl shadow-indigo-100 flex items-center justify-center gap-2"
-                >
-                  Confirm Award <Trophy className="w-4 h-4" />
-                </button>
-             </div>
+              </div>
+
+              <button
+                onClick={handleAwardBadge}
+                className="w-full py-4 bg-indigo-600 text-white font-black uppercase text-xs rounded-2xl shadow-xl shadow-indigo-100 flex items-center justify-center gap-2"
+              >
+                Confirm Award <Trophy className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -480,7 +494,7 @@ const ClubDashboard = () => {
                       <td className="px-6 py-4">{reg.student?.email}</td>
                       <td className="px-6 py-4">{reg.joinedAt}</td>
                       <td className="px-8 py-6 text-right space-x-2">
-                        <button 
+                        <button
                           onClick={() => { setSelectedStudentId(reg.student.id); setIsAwardingBadge(true); }}
                           className="px-3 py-1.5 bg-yellow-50 text-yellow-600 text-[10px] font-black uppercase rounded-lg hover:bg-yellow-600 hover:text-white transition-all inline-flex items-center gap-1"
                         >
