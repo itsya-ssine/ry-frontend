@@ -16,6 +16,9 @@ const Profile = ({ onBack }) => {
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef(null);
 
+  const [isEditingName, setIsEditingName] = useState(false);
+  const [newName, setNewName] = useState(user?.name || '');
+
   useEffect(() => {
     const loadProfileData = async () => {
       if (!user) return;
@@ -40,9 +43,27 @@ const Profile = ({ onBack }) => {
     loadProfileData();
   }, [user]);
 
+  const handleUpdateName = async () => {
+    if (!user || !newName.trim()) return;
+
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    if (!nameRegex.test(newName)) {
+      alert("Name can only contain letters and spaces.");
+      return;
+    }
+
+    try {
+      await api.updateProfile(user.id, { name: newName, bio: user.bio });
+      setIsEditingName(false);
+      alert("Name updated successfully!");
+    } catch (error) {
+      console.error("Failed to update name", error);
+    }
+  };
+
   const handleUpdateBio = async () => {
     if (!user) return;
-    await api.updateBio(user.id, { bio: newBio });
+    await api.updateProfile(user.id, { bio: newBio, name: user.name });
     setIsEditingBio(false);
   };
 
@@ -118,7 +139,35 @@ const Profile = ({ onBack }) => {
             />
           </div>
           <div className="flex-grow pb-2">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight">{user?.name}</h1>
+            <div className="flex items-center gap-3">
+              {isEditingName ? (
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={newName}
+                    onChange={(e) => setNewName(e.target.value)}
+                    className="text-2xl font-black text-slate-900 border-b-2 border-indigo-600 outline-none bg-transparent"
+                    autoFocus
+                  />
+                  <button onClick={handleUpdateName} className="p-1 text-green-500 hover:bg-green-50 rounded-lg">
+                    <Check className="w-5 h-5" />
+                  </button>
+                  <button onClick={() => { setIsEditingName(false); setNewName(user.name); }} className="p-1 text-red-400 hover:bg-red-50 rounded-lg">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <h1 className="text-4xl font-black text-slate-900 tracking-tight">{user?.name}</h1>
+                  <button
+                    onClick={() => setIsEditingName(true)}
+                    className="p-2 text-slate-300 hover:text-indigo-600 transition-colors"
+                  >
+                    <Edit2 className="w-4 h-4" />
+                  </button>
+                </>
+              )}
+            </div>
             <div className="flex flex-wrap gap-4 mt-2">
               <div className="flex items-center gap-2 text-slate-400 font-bold text-sm">
                 <Mail className="w-4 h-4" /> {user?.email}

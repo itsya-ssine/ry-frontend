@@ -36,13 +36,14 @@ export const api = {
     return res.json();
   },
 
-  async updateBio(userId, data) {
-    const res = await fetch(`${BASE_URL}/users/bio`, {
+  async updateProfile(userId, data) {
+    const res = await fetch(`${BASE_URL}/users/update`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', },
       body: JSON.stringify({
         id: userId,
-        bio: data.bio
+        bio: data.bio,
+        name: data.name
       })
     });
     return res.json();
