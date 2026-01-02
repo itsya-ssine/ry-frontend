@@ -16,8 +16,6 @@ const Profile = ({ onBack }) => {
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef(null);
 
-  const ASSETS_URL = "https://ry-backend.vercel.app/";
-
   useEffect(() => {
     const loadProfileData = async () => {
       if (!user) return;
@@ -52,14 +50,36 @@ const Profile = ({ onBack }) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const formData = new FormData();
-    formData.append('avatar', file);
-    formData.append('userId', user.id);
-
     try {
+      const imageData = new FormData();
+      imageData.append('file', file);
+      imageData.append('upload_preset', "club_management");
+      imageData.append('cloud_name', "dfnaghttm");
+
+      const cloudRes = await fetch(import.meta.env.VITE_ASSETS_URL, {
+        method: "POST",
+        body: imageData
+      });
+
+      const cloudData = await cloudRes.json();
+
+      if (!cloudRes.ok) {
+        throw new Error(cloudData.error?.message || "Cloudinary upload failed");
+      }
+
+      const imageUrl = cloudData.secure_url;
+
+      const formData = new FormData();
+      formData.append('userId', user.id);
+      formData.append('avatar', imageUrl);
+
       await api.updateUserPfp(formData);
+
+      alert("Profile picture updated!");
+
     } catch (error) {
       console.error("Upload failed", error);
+      alert("Failed to update profile picture.");
     }
   };
 
@@ -82,7 +102,7 @@ const Profile = ({ onBack }) => {
         <div className="px-10 pb-10 -mt-16 flex flex-col md:flex-row items-end gap-6">
           <div className="relative group cursor-pointer" onClick={() => fileInputRef.current?.click()}>
             <img
-              src={`${ASSETS_URL}${user.avatar}`}
+              src={user.avatar}
               className="w-40 h-40 rounded-[2.5rem] border-[6px] border-white shadow-xl object-cover group-hover:brightness-90 transition-all"
               alt={user?.name}
             />
@@ -180,7 +200,7 @@ const Profile = ({ onBack }) => {
             {myClubs.length > 0 ? (
               myClubs.map(({ club, reg }) => (
                 <div key={club.id} className="flex items-center gap-4 p-5 bg-slate-50 rounded-[1.5rem] border border-slate-100 hover:border-indigo-200 transition-colors">
-                  <img src={`${ASSETS_URL}${club.image}`} className="w-14 h-14 rounded-2xl object-cover" alt="" />
+                  <img src={club.image} className="w-14 h-14 rounded-2xl object-cover" alt="" />
                   <div className="flex-grow">
                     <h4 className="font-black text-slate-900 tracking-tight">{club.name}</h4>
                     <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mt-0.5">{club.category}</p>
