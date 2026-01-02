@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
-import { Users, Shield, BookOpen, KeyRound, ArrowLeft, UserPlus, Mail, User as UserIcon, Eye, EyeOff, Lock } from 'lucide-react';
+import { KeyRound, ArrowLeft, UserPlus, Mail, User as UserIcon, Eye, EyeOff, Lock } from 'lucide-react';
 
 const Login = ({ onBack }) => {
   const { login, signup } = useAuth();
@@ -16,19 +16,37 @@ const Login = ({ onBack }) => {
     e.preventDefault();
     setError('');
 
+    const nameRegex = /^[a-zA-Z\s]+$/;
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
     try {
       if (isSignUp) {
-        if (!name || !email || !password) {
+        if (!name.trim() || !email.trim() || !password) {
           setError('Please fill in all fields');
           return;
         }
+
+        if (!nameRegex.test(name)) {
+          setError('Name can only contain letters and spaces');
+          return;
+        }
+
+        if (name.trim().length < 2) {
+          setError('Name must be at least 2 characters long');
+          return;
+        }
+
+        if (!emailRegex.test(email)) {
+          setError('Please enter a valid email address');
+          return;
+        }
+
         if (password !== confirmPassword) {
           setError('Passwords do not match');
           return;
         }
 
         const result = await signup(name, email, password);
-        
         if (!result.success) {
           setError(result.message);
         }
