@@ -47,6 +47,7 @@ const AdminDashboard = () => {
         api.getRecentActivities(),
         api.getArchivedActivities(),
       ]);
+      
       setClubs(c || []);
       setActivities(a || []);
       setUsers(u || []);
