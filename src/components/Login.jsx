@@ -43,20 +43,6 @@ const Login = ({ onBack }) => {
     }
   };
 
-  const quickLogin = (role) => {
-    const emails = {
-      admin: 'naoki@gmail.com',
-      club: 'openmind@gmail.com',
-      student: 'rihab@gmail.com'
-    };
-    const password = {
-      admin: 'naoki123',
-      club: 'qwe123',
-      student: 'qwe123'
-    }
-    login(emails[role], password[role]);
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-50 to-white flex flex-col items-center justify-center p-4">
       <div className="max-w-md w-full bg-white/80 backdrop-blur-md rounded-2xl shadow-xl p-8 relative border border-white/50">
@@ -173,34 +159,6 @@ const Login = ({ onBack }) => {
             {isSignUp ? 'Already have an account? Sign In' : "Don't have an account? Sign Up"}
           </button>
         </div>
-
-        {!isSignUp && (
-          <>
-            <div className="relative mb-6">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-200"></div>
-              </div>
-              <div className="relative flex justify-center text-xs uppercase tracking-wider">
-                <span className="px-2 bg-white text-gray-400">Quick Access Roles</span>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-3 gap-3">
-              <button type="button" onClick={() => quickLogin('admin')} className="flex flex-col items-center justify-center p-3 border border-gray-100 rounded-xl hover:bg-red-50 hover:border-red-100 transition-all group">
-                <Shield className="w-6 h-6 text-red-500 mb-1 group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-bold text-gray-500 uppercase">Admin</span>
-              </button>
-              <button type="button" onClick={() => quickLogin('club')} className="flex flex-col items-center justify-center p-3 border border-gray-100 rounded-xl hover:bg-purple-50 hover:border-purple-100 transition-all group">
-                <Users className="w-6 h-6 text-purple-500 mb-1 group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-bold text-gray-500 uppercase tracking-tighter">Club Mgr</span>
-              </button>
-              <button type="button" onClick={() => quickLogin('student')} className="flex flex-col items-center justify-center p-3 border border-gray-100 rounded-xl hover:bg-blue-50 hover:border-blue-100 transition-all group">
-                <BookOpen className="w-6 h-6 text-blue-500 mb-1 group-hover:scale-110 transition-transform" />
-                <span className="text-[10px] font-bold text-gray-500 uppercase">Student</span>
-              </button>
-            </div>
-          </>
-        )}
       </div>
     </div>
   );
