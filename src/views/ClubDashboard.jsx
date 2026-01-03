@@ -194,8 +194,8 @@ const ClubDashboard = () => {
 
       await api.addNotifications(
         status === 'accepted' ? 'success' : 'info',
-        club.name,
-        [studentId],
+        club.id,
+        studentId,
         msg
       );
 
