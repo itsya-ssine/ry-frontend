@@ -14,6 +14,11 @@ const MainLayout = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [currentTab, setCurrentTab] = useState('home');
 
+  const handleLogoClick = () => {
+    setCurrentTab('home');
+    setShowLogin(false);
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -31,7 +36,7 @@ const MainLayout = () => {
       <div className="min-h-screen bg-gray-50 flex flex-col">
         <Navbar 
           onProfileClick={() => setCurrentTab('profile')} 
-          onHomeClick={() => setCurrentTab('home')}
+          onHomeClick={handleLogoClick}
         />
         <main className="flex-grow">
           {user.role === 'admin' && <AdminDashboard />}
@@ -54,7 +59,7 @@ const MainLayout = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <Navbar 
         onLoginClick={() => setShowLogin(true)} 
-        onHomeClick={() => setCurrentTab('home')}
+        onHomeClick={handleLogoClick}
       />
       <main className="flex-grow">
         <StudentDashboard onGuestJoin={() => setShowLogin(true)} />
