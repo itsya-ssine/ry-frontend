@@ -30,6 +30,13 @@ export const AuthProvider = ({ children }) => {
     return () => { isMounted = false; };
   }, []);
 
+  const updateUser = (newData) => {
+    setUser(prevUser => {
+      if (!prevUser) return null;
+      return { ...prevUser, ...newData };
+    });
+  };
+
   const login = async (email, password) => {
     setIsAuthenticating(true);
     try {
@@ -72,7 +79,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, isAuthenticating, login, signup, logout }}>
+    <AuthContext.Provider value={{ user, isLoading, isAuthenticating, login, signup, logout, updateUser }}>
       {!isLoading && children} 
     </AuthContext.Provider>
   );

@@ -11,25 +11,37 @@ const Navbar = ({ onLoginClick, onProfileClick, onHomeClick }) => {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-    if (!user) return;
+  if (!user) return;
 
-    const loadNotifications = async () => {
+  const loadNotifications = async () => {
+    try {
       const data = await api.getNotifications(user.id);
+      
+      setNotifications(data);
+      
+      const newNames = { ...senderNames };
+      let needsUpdate = false;
 
-      const names = {};
       for (const n of data) {
-        if (!names[n.senderId]) {
+        if (!newNames[n.senderId]) {
           const res = await api.getSenderName(n.senderId);
-          names[n.senderId] = res.name;
+          newNames[n.senderId] = res.name;
+          needsUpdate = true;
         }
       }
 
-      setSenderNames(names);
-      setNotifications(data);
-    };
+      if (needsUpdate) setSenderNames(newNames);
+    } catch (error) {
+      console.error("Notification sync failed:", error);
+    }
+  };
 
-    loadNotifications();
-  }, [user]);
+  loadNotifications();
+  
+  const pollTimer = setInterval(loadNotifications, 5000); 
+
+  return () => clearInterval(pollTimer);
+}, [user, senderNames]);
 
 
   useEffect(() => {

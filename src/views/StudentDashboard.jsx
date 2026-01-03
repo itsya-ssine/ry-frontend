@@ -11,16 +11,30 @@ const StudentDashboard = ({ onGuestJoin }) => {
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
-    const load = async () => {
+    const loadContent = async () => {
       const [c, a] = await Promise.all([api.getClubs(), api.getActivities()]);
       setClubs(c);
       setActivities(a);
-      if (user) {
+    };
+    loadContent();
+  }, []);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchStatus = async () => {
+      try {
         const regs = await api.getStudentRegistrations(user.id);
         setMyRegistrations(regs);
+      } catch (err) {
+        console.error("Status sync error:", err);
       }
     };
-    load();
+
+    fetchStatus();
+    const statusInterval = setInterval(fetchStatus, 4000);
+
+    return () => clearInterval(statusInterval);
   }, [user]);
 
   const handleJoin = async (clubId) => {
@@ -75,8 +89,8 @@ const StudentDashboard = ({ onGuestJoin }) => {
           </div>
           <div className="relative w-full md:w-64">
             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
-            <input 
-              type="text" 
+            <input
+              type="text"
               placeholder="Search clubs..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -98,10 +112,10 @@ const StudentDashboard = ({ onGuestJoin }) => {
                 </div>
                 <h3 className="font-bold text-lg text-gray-900 mb-2">{club.name}</h3>
                 <p className="text-gray-500 text-sm flex-grow mb-6">{club.description}</p>
-                
+
                 <div className="mt-auto">
                   {!status && (
-                    <button 
+                    <button
                       onClick={() => handleJoin(club.id)}
                       className="w-full py-2 bg-indigo-50 text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 transition-colors flex items-center justify-center gap-2"
                     >

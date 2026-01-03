@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 
 const Profile = ({ onBack }) => {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
   const [myClubs, setMyClubs] = useState([]);
   const [badges, setBadges] = useState([]);
   const [isEditingBio, setIsEditingBio] = useState(false);
@@ -45,7 +45,6 @@ const Profile = ({ onBack }) => {
 
   const handleUpdateName = async () => {
     if (!user || !newName.trim()) return;
-
     const nameRegex = /^[a-zA-Z\s]+$/;
     if (!nameRegex.test(newName)) {
       alert("Name can only contain letters and spaces.");
@@ -53,9 +52,12 @@ const Profile = ({ onBack }) => {
     }
 
     try {
-      await api.updateProfile(user.id, { name: newName, bio: user.bio });
-      setIsEditingName(false);
-      alert("Name updated successfully!");
+      const response = await api.updateProfile(user.id, { name: newName, bio: user.bio });
+      
+      if (response.success) {
+        updateUser({ name: newName }); 
+        setIsEditingName(false);
+      }
     } catch (error) {
       console.error("Failed to update name", error);
     }
@@ -63,8 +65,16 @@ const Profile = ({ onBack }) => {
 
   const handleUpdateBio = async () => {
     if (!user) return;
-    await api.updateProfile(user.id, { bio: newBio, name: user.name });
-    setIsEditingBio(false);
+    try {
+      const response = await api.updateProfile(user.id, { bio: newBio, name: user.name });
+      
+      if (response.success) {
+        updateUser({ bio: newBio });
+        setIsEditingBio(false);
+      }
+    } catch (error) {
+      console.error("Failed to update bio", error);
+    }
   };
 
   const handleImageChange = async (e) => {
@@ -96,6 +106,7 @@ const Profile = ({ onBack }) => {
 
       await api.updateUserPfp(formData);
 
+      updateUser({ avatar: imageUrl });
       alert("Profile picture updated!");
 
     } catch (error) {
