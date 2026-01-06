@@ -407,7 +407,7 @@ const ClubDashboard = () => {
                   onChange={(e) => setNewManagerId(e.target.value)}
                   className="w-full md:w-64 px-3 py-2 bg-white border border-amber-200 rounded-lg text-sm outline-none"
                 >
-                  {allUsers.filter(u => u.role === 'student').map(u => <option key={u.id} value={u.id}>{u.name}</option>)}
+                  {registrations.filter(r => r.status === 'accepted').map(u => <option key={u.student.id} value={u.student.id}>{u.student.name}</option>)}
                 </select>
                 <button onClick={handleTransferManagement} className="px-6 py-2 bg-amber-600 text-white font-bold rounded-lg hover:bg-amber-700">Confirm</button>
                 <button onClick={() => setIsTransferring(false)} className="px-6 py-2 text-amber-700">Cancel</button>
