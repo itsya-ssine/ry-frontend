@@ -11,37 +11,37 @@ const Navbar = ({ onLoginClick, onProfileClick, onHomeClick }) => {
   const dropdownRef = useRef(null);
 
   useEffect(() => {
-  if (!user) return;
+    if (!user) return;
 
-  const loadNotifications = async () => {
-    try {
-      const data = await api.getNotifications(user.id);
-      
-      setNotifications(data);
-      
-      const newNames = { ...senderNames };
-      let needsUpdate = false;
+    const loadNotifications = async () => {
+      try {
+        const data = await api.getNotifications(user.id);
 
-      for (const n of data) {
-        if (!newNames[n.senderId]) {
-          const res = await api.getSenderName(n.senderId);
-          newNames[n.senderId] = res.name;
-          needsUpdate = true;
+        setNotifications(data);
+
+        const newNames = { ...senderNames };
+        let needsUpdate = false;
+
+        for (const n of data) {
+          if (!newNames[n.senderId]) {
+            const res = await api.getSenderName(n.senderId);
+            newNames[n.senderId] = res.name;
+            needsUpdate = true;
+          }
         }
+
+        if (needsUpdate) setSenderNames(newNames);
+      } catch (error) {
+        console.error("Notification sync failed:", error);
       }
+    };
 
-      if (needsUpdate) setSenderNames(newNames);
-    } catch (error) {
-      console.error("Notification sync failed:", error);
-    }
-  };
+    loadNotifications();
 
-  loadNotifications();
-  
-  const pollTimer = setInterval(loadNotifications, 5000); 
+    const pollTimer = setInterval(loadNotifications, 5000);
 
-  return () => clearInterval(pollTimer);
-}, [user, senderNames]);
+    return () => clearInterval(pollTimer);
+  }, [user, senderNames]);
 
 
   useEffect(() => {
@@ -74,8 +74,23 @@ const Navbar = ({ onLoginClick, onProfileClick, onHomeClick }) => {
 
   const formatNotifDate = (dateString) => {
     if (!dateString) return "Just now";
+
     const date = new Date(dateString);
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    const now = new Date();
+    const diffInSeconds = Math.floor((now - date) / 1000);
+
+    if (diffInSeconds < 60) return "Just now";
+
+    if (diffInSeconds < 3600) {
+      const minutes = Math.floor(diffInSeconds / 60);
+      return `${minutes}m ago`;
+    }
+
+    if (date.toDateString() === now.toDateString()) {
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
   };
 
   const getRoleBadge = () => {
