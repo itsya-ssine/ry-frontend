@@ -440,8 +440,8 @@ const ClubDashboard = () => {
                 registrations.filter(r => r.status === 'pending').map(reg => (
                   <div key={reg.id} className="p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center overflow-hidden">
-                        <UserIcon color="#ff7d37ff" className="w-5 h-5" />
+                      <div className="flex items-center gap-3">
+                        <img src={reg.student?.avatar} className="w-10 h-10 rounded-xl" />
                       </div>
                       <div>
                         <p className="text-sm font-medium text-gray-900">{reg.student?.name || 'Unknown'}</p>
@@ -486,8 +486,8 @@ const ClubDashboard = () => {
                   {registrations.filter(r => r.status === 'accepted').map(reg => (
                     <tr key={reg.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 flex items-center gap-3 text-gray-900 font-medium">
-                        <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center overflow-hidden">
-                          <UserIcon color="#00ba19ff" className="w-5 h-5" />
+                        <div className="flex items-center gap-3">
+                          <img src={reg.student.avatar} className="w-10 h-10 rounded-xl" />
                         </div>
                         {reg.student?.name}
                       </td>
