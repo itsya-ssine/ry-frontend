@@ -77,7 +77,7 @@ const Navbar = ({ onLoginClick, onProfileClick, onHomeClick }) => {
 
     const date = new Date(dateString);
     const now = new Date();
-    const diffInSeconds = Math.floor((now - date) / 1000);
+    const diffInSeconds = Math.floor((now - date) / 1000) - 3600;
 
     if (diffInSeconds < 60) return "Just now";
 
