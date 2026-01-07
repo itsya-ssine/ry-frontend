@@ -1,8 +1,6 @@
 import { School, Github, Twitter, Instagram, Mail, MapPin, Phone } from 'lucide-react';
 
 const Footer = () => {
-  const currentYear = new Date().getFullYear();
-
   return (
     <footer className="bg-white border-t border-gray-100 pt-16 pb-8">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -62,16 +60,6 @@ const Footer = () => {
                 <span className="text-sm font-medium text-slate-500">ry.system@gmail.com</span>
               </li>
             </ul>
-          </div>
-        </div>
-
-        <div className="pt-8 border-t border-slate-50 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-            © {currentYear} RY-SYS Platform.
-          </p>
-          <div className="flex gap-6">
-            <a href="#" className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors">Privacy Policy</a>
-            <a href="#" className="text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-indigo-600 transition-colors">Terms of Service</a>
           </div>
         </div>
       </div>
