@@ -53,7 +53,7 @@ const ClubDashboard = () => {
           setEditDesc(clubData.description);
           const regs = await api.getClubRegistrations(clubData.id);
           setRegistrations(regs);
-          setAllUsers(usersData.filter(u => u.id !== user.id && u.role !== 'admin'));
+          setAllUsers(usersData.filter(u => u.id !== user.id));
           if (usersData.length > 0) setNewManagerId(usersData[0].id);
         }
       }
