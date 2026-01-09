@@ -38,6 +38,7 @@ const AdminDashboard = () => {
   const [archivingActivityId, setArchivingActivityId] = useState(null);
   const [archiveRating, setArchiveRating] = useState(5);
   const [archiveBudget, setArchiveBudget] = useState('');
+  const [archiveSortBy, setArchiveSortBy] = useState('date');
 
   const [rawFile, setRawFile] = useState(null);
   const fileInputRef = useRef(null);
@@ -233,6 +234,18 @@ const AdminDashboard = () => {
     else await api.deleteActivity(id);
     loadData();
   };
+
+  const archivedActivitiesSorted = useMemo(() => {
+    return [...archivedActivities].sort((a, b) => {
+      if (archiveSortBy === 'rating') {
+        return (Number(b.rating) || 0) - (Number(a.rating) || 0);
+      } else if (archiveSortBy === 'budget') {
+        return (Number(b.budget) || 0) - (Number(a.budget) || 0);
+      } else {
+        return new Date(b.date).getTime() - new Date(a.date).getTime();
+      }
+    });
+  }, [archivedActivities, archiveSortBy]);
 
   const stats = useMemo(() => {
     const safeUsers = users || [];
@@ -703,6 +716,31 @@ const AdminDashboard = () => {
 
             {activeTab === 'archive' && (
               <div className="w-full bg-white rounded-[2rem] border border-gray-100 overflow-hidden shadow-sm">
+                <div className="p-8 bg-slate-50/50 border-b border-slate-100 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                  <div>
+                    <h2 className="text-xl font-black text-slate-900 tracking-tight">Activity Archive</h2>
+                    <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Review historical event metrics</p>
+                  </div>
+
+                  <div className="flex items-center bg-white p-1 rounded-2xl border border-slate-200 shadow-sm">
+                    {(['date', 'rating', 'budget']).map((key) => (
+                      <button
+                        key={key}
+                        onClick={() => setArchiveSortBy(key)}
+                        className={`flex items-center gap-2 px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${archiveSortBy === key
+                          ? 'bg-indigo-600 text-white shadow-md'
+                          : 'text-slate-400 hover:text-slate-600'
+                          }`}
+                      >
+                        {key === 'date' && <Calendar className="w-3.5 h-3.5" />}
+                        {key === 'rating' && <Star className="w-3.5 h-3.5" />}
+                        {key === 'budget' && <DollarSign className="w-3.5 h-3.5" />}
+                        {key}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div className="overflow-x-auto w-full">
                   <table className="w-full text-left table-fixed md:table-auto">
                     <thead>
@@ -713,7 +751,7 @@ const AdminDashboard = () => {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
-                      {archivedActivities.map(activity => (
+                      {archivedActivitiesSorted.map(activity => (
                         <tr key={activity.id} className="group hover:bg-slate-50/30 transition-colors">
                           <td className="px-8 py-6">
                             <div className="flex items-center gap-4">
