@@ -5,7 +5,7 @@ import {
   Plus, Trash2, Calendar, Users, Image as ImageIcon, X, MapPin,
   UserCheck, LayoutDashboard, TrendingUp, GraduationCap, FileText,
   CheckCircle2, Clock, XCircle, Trophy, Zap, BarChart3, ChevronRight,
-  Send, SendHorizontal, Pencil, Archive
+  Send, SendHorizontal, Pencil, Archive, MessageCircleX, Star, DollarSign
 } from 'lucide-react';
 
 const AdminDashboard = () => {
@@ -34,6 +34,11 @@ const AdminDashboard = () => {
   const [notifType, setNotifType] = useState('info');
   const [isSendingNotif, setIsSendingNotif] = useState(false);
 
+  const [isArchiveModalOpen, setIsArchiveModalOpen] = useState(false);
+  const [archivingActivityId, setArchivingActivityId] = useState(null);
+  const [archiveRating, setArchiveRating] = useState(5);
+  const [archiveBudget, setArchiveBudget] = useState('');
+
   const [rawFile, setRawFile] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -47,7 +52,7 @@ const AdminDashboard = () => {
         api.getRecentActivities(),
         api.getArchivedActivities(),
       ]);
-      
+
       setClubs(c || []);
       setActivities(a || []);
       setUsers(u || []);
@@ -173,6 +178,24 @@ const AdminDashboard = () => {
     } catch (error) {
       console.error("Error creating item:", error);
     }
+  };
+
+  const openArchiveModal = (activityId) => {
+    setArchivingActivityId(activityId);
+    setArchiveRating(5);
+    setArchiveBudget('');
+    setIsArchiveModalOpen(true);
+  };
+
+  const handleArchiveConfirm = async () => {
+    if (!archivingActivityId) return;
+    await api.archiveActivity(archivingActivityId, {
+      rating: archiveRating,
+      budget: parseFloat(archiveBudget) || 0
+    });
+    setIsArchiveModalOpen(false);
+    setArchivingActivityId(null);
+    loadData();
   };
 
   const resetForm = () => {
@@ -644,6 +667,11 @@ const AdminDashboard = () => {
                     <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
                     <div className="absolute top-4 right-4 flex gap-2">
                       <button
+                        onClick={() => openArchiveModal(activity.id)}
+                        className="bg-white/95 p-2 rounded-xl text-indigo-600 hover:bg-indigo-600 hover:text-white shadow-lg transition-all">
+                        <MessageCircleX className="w-5 h-5" />
+                      </button>
+                      <button
                         onClick={() => handleEditActivity(activity)}
                         className="bg-white/95 p-2 rounded-xl text-indigo-600 hover:bg-indigo-600 hover:text-white shadow-lg transition-all">
                         <Pencil className="w-5 h-5" />
@@ -681,6 +709,7 @@ const AdminDashboard = () => {
                       <tr className="bg-slate-50/50 border-b border-slate-100">
                         <th className="w-[60%] px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Activity</th>
                         <th className="w-[40%] px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Location & Date</th>
+                        <th className="w-[40%] px-8 py-5 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Stats</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-50">
@@ -709,6 +738,18 @@ const AdminDashboard = () => {
                               </div>
                             </div>
                           </td>
+                          <td className="px-8 py-6">
+                            <div className="flex flex-col gap-1.5">
+                              <div className="flex gap-0.5">
+                                {[...Array(5)].map((_, i) => (
+                                  <Star key={i} className={`w-3 h-3 ${i < (activity.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-slate-200'}`} />
+                                ))}
+                              </div>
+                              <div className="w-24 flex items-center gap-1.5 text-emerald-600">
+                                <span className="text-xs font-black">{activity.budget?.toLocaleString() || '0'} DH</span>
+                              </div>
+                            </div>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -726,6 +767,58 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
+
+      {isArchiveModalOpen && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-xl flex items-center justify-center p-4 z-[110]">
+          <div className="bg-white rounded-[2.5rem] max-w-md w-full p-10 shadow-2xl relative border border-white/10 animate-in zoom-in-95 duration-300">
+            <div className="flex justify-between items-center mb-8">
+              <div>
+                <h2 className="text-2xl font-black text-slate-900 tracking-tight">Archive Activity</h2>
+                <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mt-1">Submit event analytics</p>
+              </div>
+              <button onClick={() => setIsArchiveModalOpen(false)} className="p-2 bg-slate-50 rounded-2xl text-slate-400 transition-colors"><X className="w-6 h-6" /></button>
+            </div>
+
+            <div className="space-y-8">
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4 ml-1">Event Rating</label>
+                <div className="flex justify-center gap-3">
+                  {[1, 2, 3, 4, 5].map(star => (
+                    <button
+                      key={star}
+                      onClick={() => setArchiveRating(star)}
+                      className={`p-1 transition-all transform hover:scale-125 ${archiveRating >= star ? 'text-yellow-400' : 'text-slate-200'}`}
+                    >
+                      <Star className={`w-10 h-10 ${archiveRating >= star ? 'fill-yellow-400' : 'fill-none'}`} />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Total Budget (DH)</label>
+                <div className="relative group">
+                  <DollarSign className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300 group-focus-within:text-indigo-600 transition-colors" />
+                  <input
+                    type="number"
+                    value={archiveBudget}
+                    onChange={(e) => setArchiveBudget(e.target.value)}
+                    placeholder="0.00"
+                    className="w-full pl-12 pr-5 py-4 bg-slate-50 border-2 border-transparent focus:border-indigo-600 rounded-2xl outline-none font-bold text-lg"
+                  />
+                </div>
+              </div>
+
+              <button
+                onClick={handleArchiveConfirm}
+                className="w-full py-5 bg-indigo-600 text-white font-black uppercase text-xs rounded-2xl shadow-xl shadow-indigo-100 dark:shadow-indigo-900/20 flex items-center justify-center gap-2 hover:bg-indigo-700 transition-all active:scale-95"
+              >
+                Finalize Archiving <Archive className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50 overflow-y-auto">

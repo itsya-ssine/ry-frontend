@@ -276,5 +276,17 @@ export const api = {
       body: JSON.stringify({ userId })
     });
     return res.json();
+  },
+
+  async archiveActivity(activityId, data) {
+    const formData = new FormData();
+    formData.append('rating', data.rating);
+    formData.append('budget', data.budget);
+
+    const res = await fetch(`${BASE_URL}/archive/activities/${activityId}`, {
+      method: "POST",
+      body: formData
+    });
+    return res.json();
   }
 };
